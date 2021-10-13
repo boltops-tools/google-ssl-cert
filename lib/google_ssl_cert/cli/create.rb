@@ -31,6 +31,20 @@ class GoogleSslCert::CLI
       logger.error "#{e.class}: #{e.message}"
     end
 
+    # The secret name is expected to be static/predictable
+    # The secret value is the changed/updated google ssl cert
+    #
+    # Example:
+    #   secret_name  = demo_ssl-cert-name
+    #   secret_value = google-ssl-cert-20211013231005
+    #
+    #   gcloud compute ssl-certificates list
+    #   NAME                            TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
+    #   google-ssl-cert-20211013231005  SELF_MANAGED  2021-10-13T16:10:05.795-07:00  2022-10-12T17:22:01.000-07:00
+    #   gcloud secrets list
+    #   NAME                CREATED              REPLICATION_POLICY  LOCATIONS
+    #   demo_ssl-cert-name  2021-10-13T23:10:06  automatic
+    #
     def save_secret
       secret_value = @cert_name # @cert_name the value because it will be referenced. the @cert_name or 'key' will be the same
       secret_name  = @options[:secret_name]
@@ -67,8 +81,8 @@ class GoogleSslCert::CLI
         error << "--secret-name must be provided or --no-save-secret option must be used"
       end
       # extra validation early to prevent google ssl cert from being created but the secret not being stored
-      if secret_name && secret_name !~ /^[a-zA-Z_0-9]+$/
-        error << "--secret-name invalid format. Expected format: [a-zA-Z_0-9]+"
+      if secret_name && secret_name !~ /^[a-zA-Z_\-0-9]+$/
+        error << "--secret-name invalid format. Expected format: [a-zA-Z_0-9]+" # Expected format taken from `gcloud secrets create`
       end
       unless error.empty?
         puts error
