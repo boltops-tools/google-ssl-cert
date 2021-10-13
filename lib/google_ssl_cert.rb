@@ -8,6 +8,8 @@ GoogleSslCert::Autoloader.setup
 require "memoist"
 require "rainbow/ext/string"
 
+require "google/cloud/compute/v1/ssl_certificates"
+
 module GoogleSslCert
   class Error < StandardError; end
 end

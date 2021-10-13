@@ -1,20 +1,38 @@
-# GoogleSslCert
-
-[![Gem Version](https://badge.fury.io/rb/google-ssl-cert.png)](http://badge.fury.io/rb/google-ssl-cert)
-[![CircleCI](https://circleci.com/gh/USER/google-ssl-cert.svg?style=svg)](https://circleci.com/gh/USER/google-ssl-cert)
-[![Dependency Status](https://gemnasium.com/USER/google-ssl-cert.png)](https://gemnasium.com/USER/google-ssl-cert)
-[![Coverage Status](https://coveralls.io/google-ssl-certs/USER/google-ssl-cert/badge.png)](https://coveralls.io/r/USER/google-ssl-cert)
-[![Join the chat at https://gitter.im/USER/google-ssl-cert](https://badges.gitter.im/USER/google-ssl-cert.svg)](https://gitter.im/USER/google-ssl-cert?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Support](https://img.shields.io/badge/get-support-blue.svg)](https://boltops.com?utm_source=badge&utm_medium=badge&utm_campaign=google-ssl-cert)
-
-TODO: Write a gem description
+# Google Ssl Cert Tool
 
 ## Usage
 
-    google-ssl-cert hello yourname
-    google-ssl-cert sub:goodbye yourname
+    google-ssl-cert create
 
-The CLI tool also detects and tasks in the current folder's Rakefile and delegate to those tasks.
+The tool also detects and tasks in the current folder's Rakefile and delegate to those tasks.
+
+## Setup
+
+* The env var `GOOGLE_PROJECT` and must be set.
+* A service account as must be set up with `GOOGLE_APPLICATION_CREDENTIALS`. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
+
+To check that GOOGLE_APPLICATION_CREDENTIALS is valid and is working you can use the [boltops-tools/google_check](https://github.com/boltops-tools/google_check) test script to check. Here are the summarized commands:
+
+    git clone https://github.com/boltops-tools/google_check
+    cd google_check
+    bundle
+    bundle exec ruby google_check.rb
+
+## Cert Files Conventions
+
+If you name your cert files in your current folder conventionally like so:
+
+    server.csr # cert signing request
+    server.key # private key
+    server.crt # signed cert
+
+or:
+
+    cert.csr # cert request
+    key.pem  # private key
+    cert.pem # signed cert
+
+The tool is able to detect it and automatically use those files to create the cert.
 
 ## Installation
 

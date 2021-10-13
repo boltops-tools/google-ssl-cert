@@ -3,12 +3,14 @@ module GoogleSslCert
     class_option :verbose, type: :boolean
     class_option :noop, type: :boolean
 
-    desc "hello NAME", "Say hello to NAME."
-    long_desc Help.text(:hello)
-    option :from, desc: "from person"
-    def hello(name="you")
-      puts "from: #{options[:from]}" if options[:from]
-      puts "Hello #{name}"
+    desc "create", "Create Google SSL Certificate and save to Secrets Manager"
+    long_desc Help.text(:create)
+    option :private_key, desc: "private key path"
+    option :certificate, desc: "certificate path"
+    option :save_secret, type: :boolean, default: true, desc: "whether or not to save to Google Secrets Manager"
+    option :secret_name, desc: "Secret name, conventionally matches the cert name"
+    def create(name=nil)
+      Create.new(options.merge(name: name)).run
     end
 
     desc "completion *PARAMS", "Prints words for auto-completion."
