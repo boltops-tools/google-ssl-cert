@@ -6,7 +6,7 @@ class GoogleSslCert::CLI
 
     def initialize(options={})
       @options = options
-      @name = options[:name] || generate_name
+      @cert_name = options[:cert_name] || generate_name
       @private_key = private_key
       @certificate = certificate
     end
@@ -14,20 +14,27 @@ class GoogleSslCert::CLI
     def run
       check!
       create_cert
+      save_secret if @options[:save_secret]
     end
 
     def create_cert
       ssl_certificates.insert(
         project: ENV['GOOGLE_PROJECT'],
         ssl_certificate_resource: {
-          name: @name,
+          name: @cert_name,
           private_key: IO.read(@private_key),
           certificate: IO.read(@certificate),
         }
       )
-      puts "Google SSL Cert Created: #{@name}"
+      puts "Google SSL Cert Created: #{@cert_name}"
     rescue Google::Cloud::AlreadyExistsError => e
       logger.error "#{e.class}: #{e.message}"
+    end
+
+    def save_secret
+      secret_value = @cert_name # @cert_name the value because it will be referenced. the @cert_name or 'key' will be the same
+      secret_name  = @options[:secret_name]
+      GoogleSslCert::Secret.new(@options).save(secret_name, secret_value)
     end
 
   private
@@ -52,6 +59,19 @@ class GoogleSslCert::CLI
               * You're in the right directory with the cert files?
               * Or have specified the right path?
         EOL
+        exit
+      end
+
+      secret_name = @options[:secret_name]
+      if @options[:save_secret] && !secret_name
+        error << "--secret-name must be provided or --no-save-secret option must be used"
+      end
+      # extra validation early to prevent google ssl cert from being created but the secret not being stored
+      if secret_name && secret_name !~ /^[a-zA-Z_0-9]+$/
+        error << "--secret-name invalid format. Expected format: [a-zA-Z_0-9]+"
+      end
+      unless error.empty?
+        puts error
         exit
       end
     end

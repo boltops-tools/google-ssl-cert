@@ -48,6 +48,11 @@ module GoogleSslCert
       url_path = "#{parent}/secrets/#{name}"
       secret_manager_service.get_secret(name: url_path)
     rescue Google::Cloud::NotFoundError
+      nil
+    rescue Google::Cloud::InvalidArgumentError => e
+      logger.fatal("ERROR: #{e.class}: #{e.message}\n")
+      logger.fatal("Expected format: [[a-zA-Z_0-9]+]")
+      exit 1
     end
 
     # CLI commands:
