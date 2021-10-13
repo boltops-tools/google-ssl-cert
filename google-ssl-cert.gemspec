@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = GoogleSslCert::VERSION
   spec.authors       = ["Tung Nguyen"]
   spec.email         = ["tongueroo@gmail.com"]
-  spec.summary       = "Generated with cli-template tool. Please write a gem summary" # TODO: changeme
+  spec.summary       = "Google SSL Cert Tool"
   spec.homepage      = "https://github.com/boltopspro/google-ssl-cert"
-  spec.license       = "Nonstandard" # https://boltops.com/terms
+  spec.license       = "Apache-2.0"
 
   spec.files         = File.directory?('.git') ? `git ls-files`.split($/) : Dir.glob("**/*")
   spec.bindir        = "exe"

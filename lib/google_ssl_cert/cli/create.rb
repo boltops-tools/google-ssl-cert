@@ -6,16 +6,17 @@ class GoogleSslCert::CLI
     def initialize(options={})
       @options = options
       @name = options[:name] || generate_name
-      @private_key = options[:private_key] || conventional_private_key
-      @certificate = options[:certificate] || conventional_certificate
+      @private_key = private_key
+      @certificate = certificate
     end
 
     def run
+      check!
       create_cert
     end
 
     def create_cert
-      resp = ssl_certificates.insert(
+      ssl_certificates.insert(
         project: ENV['GOOGLE_PROJECT'],
         ssl_certificate_resource: {
           name: @name,
@@ -34,17 +35,45 @@ class GoogleSslCert::CLI
     end
     memoize :generate_name
 
-    def conventional_private_key
-      find_file("server.key", "key.pem")
+    def check!
+      error = []
+      unless @private_key
+        error << "None of the private keys could be found: #{private_keys.join(' ')}"
+      end
+      unless @certificate
+        error << "None of the certificates could be found: #{certificates.join(' ')}"
+      end
+      unless error.empty?
+        $stderr.puts error
+        $stderr.puts <<~EOL
+          Are you sure that:
+
+              * You're in the right directory with the cert files?
+              * Or have specified the right path?
+        EOL
+        exit
+      end
+    end
+
+    def private_key
+      find_file(private_keys)
+    end
+
+    def private_keys
+      [@options[:private_key], "server.key", "key.pem"].compact
     end
 
     # signed cert
-    def conventional_certificate
-      find_file("server.crt", "cert.pem")
+    def certificate
+      find_file(certificates)
+    end
+
+    def certificates
+      [@options[:certificate], "server.crt", "cert.pem"].compact
     end
 
     def find_file(*paths)
-      paths.find do |path|
+      paths.flatten.find do |path|
         File.exist?(path)
       end
     end
