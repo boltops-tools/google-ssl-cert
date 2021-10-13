@@ -1,5 +1,6 @@
-require "google/cloud/compute/v1/ssl_certificates"
+require "google-cloud-resource_manager"
 require "google-cloud-secret_manager"
+require "google/cloud/compute/v1/ssl_certificates"
 
 module GoogleSslCert
   module GoogleServices
@@ -14,5 +15,10 @@ module GoogleSslCert
       Google::Cloud::Compute::V1::SslCertificates::Rest::Client.new
     end
     memoize :ssl_certificates
+
+    def resource_manager
+      Google::Cloud.new.resource_manager
+    end
+    memoize :resource_manager
   end
 end

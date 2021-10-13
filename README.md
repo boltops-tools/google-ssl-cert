@@ -26,6 +26,10 @@ Check that cert was created on google cloud:
     NAME                            TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
     google-ssl-cert-1               SELF_MANAGED  2021-10-13T13:17:04.192-07:00  2022-10-12T17:22:01.000-07:00
 
+The cert name will also be saved to Google Secret Manager so you can later reference it.
+
+
+
 ## Setup
 
 * The env var `GOOGLE_PROJECT` and must be set.

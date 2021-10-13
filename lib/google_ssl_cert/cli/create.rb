@@ -1,6 +1,7 @@
 class GoogleSslCert::CLI
   class Create
     include GoogleSslCert::GoogleServices
+    include GoogleSslCert::Logging
     extend Memoist
 
     def initialize(options={})
@@ -26,7 +27,7 @@ class GoogleSslCert::CLI
       )
       puts "Google SSL Cert Created: #{@name}"
     rescue Google::Cloud::AlreadyExistsError => e
-      $stderr.puts "#{e.class}: #{e.message}"
+      logger.error "#{e.class}: #{e.message}"
     end
 
   private
@@ -44,8 +45,8 @@ class GoogleSslCert::CLI
         error << "None of the certificates could be found: #{certificates.join(' ')}"
       end
       unless error.empty?
-        $stderr.puts error
-        $stderr.puts <<~EOL
+        logger.error error
+        logger.error <<~EOL
           Are you sure that:
 
               * You're in the right directory with the cert files?
