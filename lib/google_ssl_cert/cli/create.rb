@@ -60,14 +60,15 @@ class GoogleSslCert::CLI
     def check!
       error = []
       unless @private_key
-        error << "None of the private keys could be found: #{private_keys.join(' ')}"
+        error << "ERROR: None of the private keys could be found: #{private_keys.join(' ')}"
       end
       unless @certificate
-        error << "None of the certificates could be found: #{certificates.join(' ')}"
+        error << "ERROR: None of the certificates could be found: #{certificates.join(' ')}"
       end
       unless error.empty?
-        logger.error error
+        logger.error error.join("\n")
         logger.error <<~EOL
+
           Are you sure that:
 
               * You're in the right directory with the cert files?
@@ -78,14 +79,14 @@ class GoogleSslCert::CLI
 
       secret_name = @options[:secret_name]
       if @options[:save_secret] && !secret_name
-        error << "--secret-name must be provided or --no-save-secret option must be used"
+        error << "ERROR: --secret-name must be provided or --no-save-secret option must be used"
       end
       # extra validation early to prevent google ssl cert from being created but the secret not being stored
       if secret_name && secret_name !~ /^[a-zA-Z_\-0-9]+$/
-        error << "--secret-name invalid format. Expected format: [a-zA-Z_0-9]+" # Expected format taken from `gcloud secrets create`
+        error << "ERROR: --secret-name invalid format. Expected format: [a-zA-Z_0-9]+" # Expected format taken from `gcloud secrets create`
       end
       unless error.empty?
-        puts error
+        logger.error error.join("\n")
         exit
       end
     end
