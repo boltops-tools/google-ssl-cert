@@ -13,11 +13,11 @@ module GoogleSslCert
     #   gcloud secrets create testsecret
     #   gcloud secrets versions add testsecret --data-file="/tmp/testsecret.txt"
     #
-    # Secret create docs
+    # Secret create API docs
     #   https://cloud.google.com/secret-manager/docs/creating-and-accessing-secrets#secretmanager-create-secret-ruby
     #   https://github.com/googleapis/google-cloud-ruby/blob/af60d07b8f134ebc35bee795d127be614abea353/google-cloud-secret_manager-v1/lib/google/cloud/secret_manager/v1/secret_manager_service/client.rb#L307
     #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/create
-    # Secret Versions add docs
+    # Secret Versions add API docs
     #   https://github.com/googleapis/google-cloud-ruby/blob/af60d07b8f134ebc35bee795d127be614abea353/google-cloud-secret_manager-v1/lib/google/cloud/secret_manager/v1/secret_manager_service/client.rb#L379
     #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/addVersion
     #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/SecretPayload
@@ -50,8 +50,13 @@ module GoogleSslCert
     rescue Google::Cloud::NotFoundError
     end
 
-    # gcloud secrets list
-    # gcloud secrets versions access latest --secret testsecret
+    # CLI commands:
+    #   gcloud secrets list
+    #   gcloud secrets versions access latest --secret testsecret
+    #
+    # Secret access version API docs
+    #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/access
+    #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/SecretPayload
     def get(name)
       version = @options[:version] || "latest"
       url_path = "#{parent}/secrets/#{name}/versions/#{version}"
