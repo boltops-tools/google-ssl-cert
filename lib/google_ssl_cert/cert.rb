@@ -18,19 +18,19 @@ module GoogleSslCert
         certificate: IO.read(@certificate),
       }
 
-      if regional?
-        region_ssl_certificates.insert(
-          project: ENV['GOOGLE_PROJECT'],
-          region: region,
-          ssl_certificate_resource: ssl_certificate_resource,
-        )
-        logger.info "Regional cert created: #{@cert_name} in region: #{region}"
-      else
+      if Global.new(@options).global?
         ssl_certificates.insert(
           project: ENV['GOOGLE_PROJECT'],
           ssl_certificate_resource: ssl_certificate_resource,
         )
         logger.info "Global cert created: #{@cert_name}"
+      else
+        region_ssl_certificates.insert(
+          project: ENV['GOOGLE_PROJECT'],
+          region: region,
+          ssl_certificate_resource: ssl_certificate_resource,
+        )
+        logger.info "Region cert created: #{@cert_name} in region: #{region}"
       end
     rescue Google::Cloud::AlreadyExistsError => e
       logger.error "#{e.class}: #{e.message}"
@@ -60,21 +60,16 @@ module GoogleSslCert
       end
     end
 
-    def regional?
-      default_region = !%w[0 false].include?(ENV['GSC_REGION']) # nil will default to true
-      @options[:region].nil? ? default_region : @options[:region]
-    end
-
     def validate!
-      error = []
+      errors = []
       unless @private_key
-        error << "ERROR: None of the private keys could be found: #{private_keys.join(' ')}"
+        errors << "ERROR: None of the private keys could be found: #{private_keys.join(' ')}"
       end
       unless @certificate
-        error << "ERROR: None of the certificates could be found: #{certificates.join(' ')}"
+        errors << "ERROR: None of the certificates could be found: #{certificates.join(' ')}"
       end
-      unless error.empty?
-        logger.error error.join("\n")
+      unless errors.empty?
+        logger.error errors.join("\n")
         logger.error <<~EOL
 
           Are you sure that:
@@ -82,7 +77,7 @@ module GoogleSslCert
               * You're in the right directory with the cert files?
               * Or have specified the right path?
         EOL
-        exit
+        exit 1
       end
     end
   end

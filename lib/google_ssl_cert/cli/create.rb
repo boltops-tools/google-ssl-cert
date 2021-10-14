@@ -10,6 +10,7 @@ class GoogleSslCert::CLI
     end
 
     def run
+      validate!
       create_cert
       save_secret if @options[:save_secret]
     end
@@ -37,12 +38,29 @@ class GoogleSslCert::CLI
     def save_secret
       secret_name  = @options[:secret_name]
       secret_value = @cert_name # @cert_name the value because it will be referenced. the @cert_name or 'key' will be the same
-      puts "secret_name #{secret_name}"
-      puts "secret_value #{secret_value}"
       GoogleSslCert::Secret.new(@options).save(secret_name, secret_value)
     end
 
   private
+    def validate!
+      errors = []
+      unless ENV['GOOGLE_APPLICATION_CREDENTIALS']
+        errors << "ERROR: The GOOGLE_APPLICATION_CREDENTIALS env var must be set."
+      end
+      unless ENV['GOOGLE_PROJECT']
+        errors << "ERROR: The GOOGLE_PROJECT env var must be set."
+      end
+      if !ENV['GOOGLE_REGION'] and !GoogleSslCert::Global.new(@options).global?
+        errors << "ERROR: The GOOGLE_REGION env var must be when creating a region cert."
+      end
+      unless errors.empty?
+        logger.error errors.join("\n")
+        exit 1
+      end
+    end
+
+    # The generate_name is in this top-level Create class because it must be known before
+    # passing to both Cert and Secret class.
     def generate_name
       "google-ssl-cert-#{Time.now.strftime("%Y%m%d%H%M%S")}"
     end

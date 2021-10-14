@@ -30,10 +30,15 @@ The cert name will also be saved to Google Secret Manager so you can later refer
 
 
 
-## Setup
+## Required Env Vars
 
-* The env var `GOOGLE_PROJECT` and must be set.
-* A service account as must be set up with `GOOGLE_APPLICATION_CREDENTIALS`. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
+These env vars should be set:
+
+Name | Description
+--- | ---
+`GOOGLE_APPLICATION_CREDENTIALS` | A service account as must be set up with `GOOGLE_APPLICATION_CREDENTIALS`. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
+`GOOGLE_PROJECT` | The env var `GOOGLE_PROJECT` and must be set.
+`GOOGLE_REGION` | The env var `GOOGLE_REGION` and must be set when creating a region-based google ssl cert. So when using the `--no-global` flag
 
 To check that GOOGLE_APPLICATION_CREDENTIALS is valid and is working you can use the [boltops-tools/google_check](https://github.com/boltops-tools/google_check) test script to check. Here are the summarized commands:
 

@@ -19,7 +19,7 @@ module GoogleSslCert
       create_secret(name, value)
       url_path = "#{parent}/secrets/#{name}"
       secret_manager_service.add_secret_version(parent: url_path, payload: {data: value})
-      logger.info "Secret saved: #{name}"
+      logger.info "Secret saved: name: #{name} value: #{value}"
     rescue Google::Cloud::AlreadyExistsError => e
       logger.error("#{e.class}: #{e.message}")
     end
@@ -68,18 +68,18 @@ module GoogleSslCert
     end
 
     def validate!
-      error = []
+      errors = []
       secret_name = @options[:secret_name]
       if @options[:save_secret] && !secret_name
-        error << "ERROR: --secret-name must be provided or --no-save-secret option must be used"
+        errors << "ERROR: --secret-name must be provided or --no-save-secret option must be used"
       end
       # extra validation early to prevent google ssl cert from being created but the secret not being stored
       if secret_name && secret_name !~ /^[a-zA-Z_\-0-9]+$/
-        error << "ERROR: --secret-name invalid format. Expected format: [a-zA-Z_0-9]+" # Expected format taken from `gcloud secrets create`
+        errors << "ERROR: --secret-name invalid format. Expected format: [a-zA-Z_0-9]+" # Expected format taken from `gcloud secrets create`
       end
-      unless error.empty?
-        logger.error error.join("\n")
-        exit
+      unless errors.empty?
+        logger.error errors.join("\n")
+        exit 1
       end
     end
   end
