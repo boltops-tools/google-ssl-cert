@@ -1,24 +1,65 @@
 # Google Ssl Cert Tool
 
-## Usage
+This tool:
 
-    google-ssl-cert create [NAME] [OPTIONS]
+1. Creates a google ssl cert using your cert files.
+2. Saves the cert name to Google Secrets so it can later be referenced.
+
+You should run this tool in the folder with your cert files. The cert files are inferred conventionally. You can also specific the cert file names explicitly.
+
+## Why?
+
+Tool is useful in conjuction with [Kubes](https://kubes.guru/) and the [google_secret](https://kubes.guru/docs/helpers/google/secrets/) helper. It can be used to automate the SSL cert rotation by:
+
+1. Running this tool to create new SSL cert and save the name to Google Secrets.
+2. Deploying your application to Kuberbetes and using the Kubes `google_secret` helper.
+
+## Usage: Quick Start
+
+Make sure you have the cert files in your current folder:
+
+    $ ls
+    server.crt  server.csr  server.key
 
 When no cert name is provided, one will be generated for you:
 
-    $ google-ssl-cert create
-    Google SSL Cert Created: google-ssl-cert-20211013203211
+    $ google-ssl-cert create --secret-name demo_ssl-cert-name
+    Global cert created: google-ssl-cert-20211014164738
+    Secret saved: name: demo_ssl-cert-name value: google-ssl-cert-20211014164738
 
-Check that cert was created on google cloud:
+Check that cert and secret was created on google cloud:
 
     $ gcloud compute ssl-certificates list
     NAME                            TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
-    google-ssl-cert-20211013203211  SELF_MANAGED  2021-10-13T13:16:28.304-07:00  2022-10-12T17:22:01.000-07:00
+    google-ssl-cert-20211014164738  SELF_MANAGED  2021-10-14T09:47:40.394-07:00  2022-10-12T17:22:01.000-07:00
+    $ gcloud compute ssl-certificates describe google-ssl-cert-20211014164738 | grep selfLink
+    selfLink: https://www.googleapis.com/compute/v1/projects/tung-275700/global/sslCertificates/google-ssl-cert-20211014164738
+    $ gcloud secrets versions access latest --secret demo_ssl-cert-name
+    google-ssl-cert-20211014164738
+
+## Usage: Region Cert
+
+If you need to create a region cert instead, IE: for internal load balancers, specify the `--no-global` flag. Example:
+
+    $ google-ssl-cert create --secret-name demo_ssl-cert-name --no-global
+    Region cert created: google-ssl-cert-20211014165827 in region: us-central1
+    Secret saved: name: demo_ssl-cert-name value: google-ssl-cert-20211014165827
+
+Check that cert and secret was created on google cloud:
+
+    $ gcloud compute ssl-certificates list
+    NAME                            TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
+    google-ssl-cert-20211014165827  SELF_MANAGED  2021-10-14T09:58:28.790-07:00  2022-10-12T17:22:01.000-07:00
+    $ gcloud compute ssl-certificates describe google-ssl-cert-20211014165827 --region $GOOGLE_REGION | grep selfLink
+    selfLink: https://www.googleapis.com/compute/v1/projects/tung-275700/regions/us-central1/sslCertificates/google-ssl-cert-20211014165827
+    $
+
+## Usage: Specifying the Cert Name
 
 You can also specify the cert name:
 
     $ google-ssl-cert create google-ssl-cert-1
-    Google SSL Cert Created: google-ssl-cert-1
+    Global cert created: google-ssl-cert-1
 
 Check that cert was created on google cloud:
 
@@ -26,21 +67,17 @@ Check that cert was created on google cloud:
     NAME                            TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
     google-ssl-cert-1               SELF_MANAGED  2021-10-13T13:17:04.192-07:00  2022-10-12T17:22:01.000-07:00
 
-The cert name will also be saved to Google Secret Manager so you can later reference it.
-
-
-
 ## Required Env Vars
 
 These env vars should be set:
 
 Name | Description
 --- | ---
-`GOOGLE_APPLICATION_CREDENTIALS` | A service account as must be set up with `GOOGLE_APPLICATION_CREDENTIALS`. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
-`GOOGLE_PROJECT` | The env var `GOOGLE_PROJECT` and must be set.
-`GOOGLE_REGION` | The env var `GOOGLE_REGION` and must be set when creating a region-based google ssl cert. So when using the `--no-global` flag
+GOOGLE\_APPLICATION_CREDENTIALS | A service account as must be set up with `GOOGLE_APPLICATION_CREDENTIALS`. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
+GOOGLE_PROJECT | The env var `GOOGLE_PROJECT` and must be set.
+GOOGLE_REGION | The env var `GOOGLE_REGION` and must be set when creating a region-based google ssl cert. So when using the `--no-global` flag
 
-To check that GOOGLE_APPLICATION_CREDENTIALS is valid and is working you can use the [boltops-tools/google_check](https://github.com/boltops-tools/google_check) test script to check. Here are the summarized commands:
+To check that `GOOGLE_APPLICATION_CREDENTIALS` is valid and is working you can use the [boltops-tools/google_check](https://github.com/boltops-tools/google_check) test script to check. Here are the summarized commands:
 
     git clone https://github.com/boltops-tools/google_check
     cd google_check
@@ -68,16 +105,6 @@ You can also specify the path to the certificate and private key explicitly:
     google-ssl-cert create --private-key server.key --certificate server.crt
 
 ## Installation
-
-Add this line to your application's Gemfile:
-
-    gem "google-ssl-cert"
-
-And then execute:
-
-    bundle
-
-Or install it yourself as:
 
     gem install google-ssl-cert
 
