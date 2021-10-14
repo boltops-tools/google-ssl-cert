@@ -8,7 +8,8 @@ class GoogleSslCert::CLI
 
     desc "get", "Get secret value"
     def get(name)
-      GoogleSslCert::Secret.new(options).get(name)
+      value = GoogleSslCert::Secret.new(options).get(name)
+      puts "Secret name: #{name} value #{value}"
     end
   end
 end
