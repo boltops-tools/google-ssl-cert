@@ -59,7 +59,7 @@ class GoogleSslCert::CLI
       end
     end
 
-    # The generate_name is in this top-level Create class because it must be known before
+    # Generate the name in this top-level Create class because it must be known before
     # passing to both Cert and Secret class.
     def generate_name
       "google-ssl-cert-#{Time.now.strftime("%Y%m%d%H%M%S")}"
