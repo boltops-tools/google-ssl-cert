@@ -17,16 +17,35 @@ class GoogleSslCert::CLI
       save_secret if @options[:save_secret]
     end
 
+    def regional?
+      default_region = !%w[0 false].include?(ENV['GSC_REGION']) # nil will default to true
+      @options[:region].nil? ? default_region : @options[:region]
+    end
+
+    # Google API Docs:
+    #    https://cloud.google.com/compute/docs/reference/rest/v1/sslCertificates/insert
     def create_cert
-      ssl_certificates.insert(
-        project: ENV['GOOGLE_PROJECT'],
-        ssl_certificate_resource: {
-          name: @cert_name,
-          private_key: IO.read(@private_key),
-          certificate: IO.read(@certificate),
-        }
-      )
-      puts "Google SSL Cert Created: #{@cert_name}"
+      region = ENV['GOOGLE_REGION']
+      ssl_certificate_resource = {
+        name: @cert_name,
+        private_key: IO.read(@private_key),
+        certificate: IO.read(@certificate),
+      }
+
+      if regional?
+        region_ssl_certificates.insert(
+          project: ENV['GOOGLE_PROJECT'],
+          region: region,
+          ssl_certificate_resource: ssl_certificate_resource,
+        )
+        logger.info "Regional cert created: #{@cert_name} in region: #{region}"
+      else
+        ssl_certificates.insert(
+          project: ENV['GOOGLE_PROJECT'],
+          ssl_certificate_resource: ssl_certificate_resource,
+        )
+        logger.info "Global cert created: #{@cert_name}"
+      end
     rescue Google::Cloud::AlreadyExistsError => e
       logger.error "#{e.class}: #{e.message}"
     end
