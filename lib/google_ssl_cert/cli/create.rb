@@ -1,12 +1,8 @@
 class GoogleSslCert::CLI
-  class Create
-    include GoogleSslCert::GoogleServices
-    include GoogleSslCert::Logging
-    extend Memoist
-
+  class Create < Base
     def initialize(options={})
-      @options = options
-      @cert_name = @options[:cert_name] || generate_name
+      super
+      @cert_name = GoogleSslCert::Name.new(@options).generate
     end
 
     def run
@@ -50,7 +46,7 @@ class GoogleSslCert::CLI
       unless ENV['GOOGLE_PROJECT']
         errors << "ERROR: The GOOGLE_PROJECT env var must be set."
       end
-      if !ENV['GOOGLE_REGION'] and !GoogleSslCert::Global.new(@options).global?
+      if !ENV['GOOGLE_REGION'] and !global?
         errors << "ERROR: The GOOGLE_REGION env var must be when creating a region cert."
       end
       unless errors.empty?
@@ -58,12 +54,5 @@ class GoogleSslCert::CLI
         exit 1
       end
     end
-
-    # Generate the name in this top-level Create class because it must be known before
-    # passing to both Cert and Secret class.
-    def generate_name
-      "google-ssl-cert-#{Time.now.strftime("%Y%m%d%H%M%S")}"
-    end
-    memoize :generate_name
   end
 end

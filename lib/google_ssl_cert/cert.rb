@@ -18,7 +18,7 @@ module GoogleSslCert
         certificate: IO.read(@certificate),
       }
 
-      if Global.new(@options).global?
+      if global?
         ssl_certificates.insert(
           project: ENV['GOOGLE_PROJECT'],
           ssl_certificate_resource: ssl_certificate_resource,
