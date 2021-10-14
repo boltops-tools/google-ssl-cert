@@ -6,48 +6,18 @@ class GoogleSslCert::CLI
 
     def initialize(options={})
       @options = options
-      @cert_name = options[:cert_name] || generate_name
-      @private_key = private_key
-      @certificate = certificate
+      @cert_name = @options[:cert_name] || generate_name
     end
 
     def run
-      check!
       create_cert
       save_secret if @options[:save_secret]
-    end
-
-    def regional?
-      default_region = !%w[0 false].include?(ENV['GSC_REGION']) # nil will default to true
-      @options[:region].nil? ? default_region : @options[:region]
     end
 
     # Google API Docs:
     #    https://cloud.google.com/compute/docs/reference/rest/v1/sslCertificates/insert
     def create_cert
-      region = ENV['GOOGLE_REGION']
-      ssl_certificate_resource = {
-        name: @cert_name,
-        private_key: IO.read(@private_key),
-        certificate: IO.read(@certificate),
-      }
-
-      if regional?
-        region_ssl_certificates.insert(
-          project: ENV['GOOGLE_PROJECT'],
-          region: region,
-          ssl_certificate_resource: ssl_certificate_resource,
-        )
-        logger.info "Regional cert created: #{@cert_name} in region: #{region}"
-      else
-        ssl_certificates.insert(
-          project: ENV['GOOGLE_PROJECT'],
-          ssl_certificate_resource: ssl_certificate_resource,
-        )
-        logger.info "Global cert created: #{@cert_name}"
-      end
-    rescue Google::Cloud::AlreadyExistsError => e
-      logger.error "#{e.class}: #{e.message}"
+      GoogleSslCert::Cert.new(@options.merge(cert_name: @cert_name)).create
     end
 
     # The secret name is expected to be static/predictable
@@ -65,8 +35,10 @@ class GoogleSslCert::CLI
     #   demo_ssl-cert-name  2021-10-13T23:10:06  automatic
     #
     def save_secret
-      secret_value = @cert_name # @cert_name the value because it will be referenced. the @cert_name or 'key' will be the same
       secret_name  = @options[:secret_name]
+      secret_value = @cert_name # @cert_name the value because it will be referenced. the @cert_name or 'key' will be the same
+      puts "secret_name #{secret_name}"
+      puts "secret_value #{secret_value}"
       GoogleSslCert::Secret.new(@options).save(secret_name, secret_value)
     end
 
@@ -75,62 +47,5 @@ class GoogleSslCert::CLI
       "google-ssl-cert-#{Time.now.strftime("%Y%m%d%H%M%S")}"
     end
     memoize :generate_name
-
-    def check!
-      error = []
-      unless @private_key
-        error << "ERROR: None of the private keys could be found: #{private_keys.join(' ')}"
-      end
-      unless @certificate
-        error << "ERROR: None of the certificates could be found: #{certificates.join(' ')}"
-      end
-      unless error.empty?
-        logger.error error.join("\n")
-        logger.error <<~EOL
-
-          Are you sure that:
-
-              * You're in the right directory with the cert files?
-              * Or have specified the right path?
-        EOL
-        exit
-      end
-
-      secret_name = @options[:secret_name]
-      if @options[:save_secret] && !secret_name
-        error << "ERROR: --secret-name must be provided or --no-save-secret option must be used"
-      end
-      # extra validation early to prevent google ssl cert from being created but the secret not being stored
-      if secret_name && secret_name !~ /^[a-zA-Z_\-0-9]+$/
-        error << "ERROR: --secret-name invalid format. Expected format: [a-zA-Z_0-9]+" # Expected format taken from `gcloud secrets create`
-      end
-      unless error.empty?
-        logger.error error.join("\n")
-        exit
-      end
-    end
-
-    def private_key
-      find_file(private_keys)
-    end
-
-    def private_keys
-      [@options[:private_key], "server.key", "key.pem"].compact
-    end
-
-    # signed cert
-    def certificate
-      find_file(certificates)
-    end
-
-    def certificates
-      [@options[:certificate], "server.crt", "cert.pem"].compact
-    end
-
-    def find_file(*paths)
-      paths.flatten.find do |path|
-        File.exist?(path)
-      end
-    end
   end
 end

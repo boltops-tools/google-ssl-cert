@@ -8,6 +8,7 @@ module GoogleSslCert
     option :cert_name, desc: "Google SSL Cert name"
     option :private_key, desc: "private key path"
     option :certificate, desc: "certificate path"
+    option :regional, desc: "regional"
     option :save_secret, type: :boolean, default: true, desc: "whether or not to save to Google Secrets Manager"
     option :secret_name, desc: "Secret name, conventionally matches the cert name"
     option :extra_certs, desc: "Additional certs to be added to the secret value"

@@ -1,13 +1,6 @@
 module GoogleSslCert
-  class Secret
-    include GoogleServices
-    include Logging
+  class Secret < Base
     extend Memoist
-
-    def initialize(options={})
-      @options = options
-      @project_id = options[:google_project] || ENV['GOOGLE_PROJECT'] || raise("GOOGLE_PROJECT env variable is not set. It's required.")
-    end
 
     # CLI commands:
     #   gcloud secrets create testsecret
@@ -22,6 +15,7 @@ module GoogleSslCert
     #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/addVersion
     #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/SecretPayload
     def save(name, value)
+      validate!
       create_secret(name, value)
       url_path = "#{parent}/secrets/#{name}"
       secret_manager_service.add_secret_version(parent: url_path, payload: {data: value})
@@ -73,16 +67,20 @@ module GoogleSslCert
       "NOT FOUND #{name}" # simple string so Kubernetes YAML is valid
     end
 
-  private
-    def parent
-      "projects/#{project_number}"
-    end
-
-    @@project_number = nil
-    def project_number
-      return @@project_number if @@project_number
-      project = resource_manager.project(@project_id)
-      @@project_number = project.project_number
+    def validate!
+      error = []
+      secret_name = @options[:secret_name]
+      if @options[:save_secret] && !secret_name
+        error << "ERROR: --secret-name must be provided or --no-save-secret option must be used"
+      end
+      # extra validation early to prevent google ssl cert from being created but the secret not being stored
+      if secret_name && secret_name !~ /^[a-zA-Z_\-0-9]+$/
+        error << "ERROR: --secret-name invalid format. Expected format: [a-zA-Z_0-9]+" # Expected format taken from `gcloud secrets create`
+      end
+      unless error.empty?
+        logger.error error.join("\n")
+        exit
+      end
     end
   end
 end
