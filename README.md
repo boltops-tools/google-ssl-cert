@@ -19,7 +19,7 @@ Tool is useful in conjuction with [Kubes](https://kubes.guru/) and the [google_s
 Make sure you have the cert files in your current folder:
 
     $ ls
-    server.crt  server.csr  server.key
+    server.crt  server.key
 
 When no cert name is provided, one will be generated for you:
 
@@ -86,23 +86,49 @@ To check that `GOOGLE_APPLICATION_CREDENTIALS` is valid and is working you can u
 
 ## Cert Files Conventions
 
-If you name your cert files in your current folder conventionally like so:
+The tool will look in your current folder for these private keys in the following order:
 
-    server.csr # cert signing request
+    private.key
+    server.key
+    key.pem
+
+And look for these certs:
+
+    certificate.crt
+    server.crt
+    cert.pem
+
+So, for example, if you name your cert files in your current folder conventionally like so:
+
     server.key # private key
     server.crt # signed cert
-
-or:
-
-    cert.csr # cert request
-    key.pem  # private key
-    cert.pem # signed cert
 
 The tool is able to detect it and automatically use those files to create the cert.
 
 You can also specify the path to the certificate and private key explicitly:
 
     google-ssl-cert create --private-key server.key --certificate server.crt
+
+## Example Kubes Kuberbetes YAML
+
+Example `ingress.yaml` with an L7 external load balancer and global cert.
+
+ingress.yaml:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web
+  annotations:
+    ingress.gcp.kubernetes.io/pre-shared-cert: '<%= google_secret("demo_ssl-cert-name", base64: false) %>'
+spec:
+  defaultBackend:
+    service:
+      name: web
+      port:
+        number: 80
+```
 
 ## Installation
 

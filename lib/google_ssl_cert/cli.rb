@@ -12,6 +12,8 @@ module GoogleSslCert
     option :save_secret, type: :boolean, default: true, desc: "whether or not to save to Google Secrets Manager"
     option :secret_name, desc: "Secret name, conventionally matches the cert name"
     option :extra_certs, desc: "Additional certs to be added to the secret value"
+    option :timestamp, type: :booean, default: true, desc: "Auto-append timestamp to cert name. Appending a timestamp allows auto-pruning also"
+    option :prune, type: :booean, default: true, desc: "Auto-prune old certs based on timestamp"
     def create
       Create.new(options).run
     end

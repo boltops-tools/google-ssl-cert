@@ -42,7 +42,7 @@ module GoogleSslCert
     end
 
     def private_keys
-      [@options[:private_key], "server.key", "key.pem"].compact
+      [@options[:private_key], "private.key", "server.key", "key.pem"].compact
     end
 
     # signed cert
@@ -51,7 +51,7 @@ module GoogleSslCert
     end
 
     def certificates
-      [@options[:certificate], "server.crt", "cert.pem"].compact
+      [@options[:certificate], "certificate.crt", "server.crt", "cert.pem"].compact
     end
 
     def find_file(*paths)
@@ -75,11 +75,11 @@ module GoogleSslCert
           Are you sure that:
 
               * You're in the right directory with the cert files?
-              * Or have specified the right path?
+              * Or can specify the path to the cert files with options:
+              * --certificate and --private-key
         EOL
         exit 1
       end
     end
   end
 end
-
