@@ -19,7 +19,7 @@ Tool is useful in conjuction with [Kubes](https://kubes.guru/) and the [google_s
 Make sure you have the cert files in your current folder:
 
     $ ls
-    server.crt  server.key
+    private.key  certificate.crt
 
 When no cert name is provided, one will be generated for you:
 
@@ -100,8 +100,8 @@ And look for these certs:
 
 So, for example, if you name your cert files in your current folder conventionally like so:
 
-    server.key # private key
-    server.crt # signed cert
+    private.key     # private key
+    certificate.crt # signed cert
 
 The tool is able to detect it and automatically use those files to create the cert.
 

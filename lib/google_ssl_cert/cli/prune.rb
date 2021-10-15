@@ -8,11 +8,11 @@ class GoogleSslCert::CLI
       certs = ssl_certs[0..right] || [] # delete all except the last cert
 
       if certs.empty?
-        logger.info "There are no certs to prune with the cert name: #{cert_base_name}"
+        logger.info "No timestamped certs to prune with cert name: #{cert_base_name}"
         return
       end
 
-      preview_delete(certs)
+      preview_delete(certs) unless @options[:yes]
       sure?
       perform_delete(certs)
     end

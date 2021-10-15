@@ -33,6 +33,7 @@ module GoogleSslCert
     cert_name_option.call
     secret_name_option.call
     global_option.call
+    option :yes, aliases: %w[y], type: :boolean, desc: "Skip 'are you sure' prompt"
     option :keep, type: :numeric, default: 1, desc: "Number of certs to keep"
     def prune
       Prune.new(options).run
