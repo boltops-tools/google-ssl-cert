@@ -2,7 +2,7 @@
 
 [![BoltOps Badge](https://img.boltops.com/boltops/badges/boltops-badge.png)](https://www.boltops.com)
 
-This tool helps to automate Google SSL Cert rotation.
+A Google SSL Cert rotation automation tool.
 
 ## How Does It Work?
 
