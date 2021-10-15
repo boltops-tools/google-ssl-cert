@@ -136,6 +136,12 @@ You can also specify the path to the certificate and private key explicitly:
 
     google-ssl-cert create --private-key server.key --certificate server.crt
 
+## Prune
+
+To prune or delete old google ssl certs after rotating:
+
+    google-ssl-cert prune
+
 ## Installation
 
     gem install google-ssl-cert
