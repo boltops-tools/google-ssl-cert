@@ -1,18 +1,45 @@
-# Google Ssl Cert Tool
+# Google Ssl Cert Rotation Tool
 
-This tool:
+[![BoltOps Badge](https://img.boltops.com/boltops/badges/boltops-badge.png)](https://www.boltops.com)
 
-1. Creates a google ssl cert using your cert files.
-2. Saves the cert name to Google Secrets so it can later be referenced.
+This tool helps to automate Google SSL Cert rotation.
 
-You should run this tool in the folder with your cert files. The cert files are inferred conventionally. You can also specific the cert file names explicitly.
+## How Does It Work?
 
-## Why?
+You should run this tool in the folder with your cert files. The cert files can be inferred conventionally or explicitly specified. Tool can be used in conjuction with [Kubes](https://kubes.guru/) and the [google_secret](https://kubes.guru/docs/helpers/google/secrets/) helper. It can be used to automate the SSL cert rotation process.
 
-Tool is useful in conjuction with [Kubes](https://kubes.guru/) and the [google_secret](https://kubes.guru/docs/helpers/google/secrets/) helper. It can be used to automate the SSL cert rotation by:
+This is done by generated a new SSL cert and storing that name to Google secrets.  All the user needs to do is be in the folder with the cert private key and signed cert. These files are typically named: `private.key` and `certificate.crt`.  The key is that the Google Secret name itself does not change, only it's value.
 
-1. Running this tool to create new SSL cert and save the name to Google Secrets.
-2. Deploying your application to Kuberbetes and using the Kubes `google_secret` helper.
+### Kubes Kuberbetes YAML
+
+Your Kuberbetes YAML files can be built with [Kubes](https://kubes.guru/) with the `google_secret` helper which references the cert name.
+
+Example `ingress.yaml` with an L7 external load balancer and global cert.
+
+.kubes/resources/web/ingress.yaml:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web
+  annotations:
+    ingress.gcp.kubernetes.io/pre-shared-cert: '<%= google_secret("cert_demo", base64: false) %>'
+spec:
+  defaultBackend:
+    service:
+      name: web
+      port:
+        number: 80
+```
+
+The `.kubes/resources/web/ingress.yaml` code remains the same, but the generated/compiled ``.kubes/output/web/ingress.yaml`` will have the new Google SSL Cert name.  This triggers Kuberbetes to do a rolling deploy properly.
+
+## Summary of Steps
+
+1. Use the `google-ssl-cert create` command to create new SSL cert and save the name to Google Secrets.  The value in the Google Secret can be later referenced.
+2. Deploying your application to Kuberbetes and using the Kubes `google_secret` helper that references the new cert name.
+3. Pruning the old cert names with the `google-ssl-cert prune` command.
 
 ## Usage: Quick Start
 
@@ -23,9 +50,9 @@ Make sure you have the cert files in your current folder:
 
 When no cert name is provided, one will be generated for you:
 
-    $ google-ssl-cert create --secret-name demo_ssl-cert-name
+    $ google-ssl-cert create --secret-name cert_demo
     Global cert created: google-ssl-cert-20211014164738
-    Secret saved: name: demo_ssl-cert-name value: google-ssl-cert-20211014164738
+    Secret saved: name: cert_demo value: google-ssl-cert-20211014164738
 
 Check that cert and secret was created on google cloud:
 
@@ -34,16 +61,16 @@ Check that cert and secret was created on google cloud:
     google-ssl-cert-20211014164738  SELF_MANAGED  2021-10-14T09:47:40.394-07:00  2022-10-12T17:22:01.000-07:00
     $ gcloud compute ssl-certificates describe google-ssl-cert-20211014164738 | grep selfLink
     selfLink: https://www.googleapis.com/compute/v1/projects/tung-275700/global/sslCertificates/google-ssl-cert-20211014164738
-    $ gcloud secrets versions access latest --secret demo_ssl-cert-name
+    $ gcloud secrets versions access latest --secret cert_demo
     google-ssl-cert-20211014164738
 
 ## Usage: Region Cert
 
 If you need to create a region cert instead, IE: for internal load balancers, specify the `--no-global` flag. Example:
 
-    $ google-ssl-cert create --secret-name demo_ssl-cert-name --no-global
+    $ google-ssl-cert create --secret-name cert_demo --no-global
     Region cert created: google-ssl-cert-20211014165827 in region: us-central1
-    Secret saved: name: demo_ssl-cert-name value: google-ssl-cert-20211014165827
+    Secret saved: name: cert_demo value: google-ssl-cert-20211014165827
 
 Check that cert and secret was created on google cloud:
 
@@ -108,27 +135,6 @@ The tool is able to detect it and automatically use those files to create the ce
 You can also specify the path to the certificate and private key explicitly:
 
     google-ssl-cert create --private-key server.key --certificate server.crt
-
-## Example Kubes Kuberbetes YAML
-
-Example `ingress.yaml` with an L7 external load balancer and global cert.
-
-ingress.yaml:
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: web
-  annotations:
-    ingress.gcp.kubernetes.io/pre-shared-cert: '<%= google_secret("demo_ssl-cert-name", base64: false) %>'
-spec:
-  defaultBackend:
-    service:
-      name: web
-      port:
-        number: 80
-```
 
 ## Installation
 
