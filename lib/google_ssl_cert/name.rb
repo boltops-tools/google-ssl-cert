@@ -7,7 +7,8 @@ module GoogleSslCert
     end
 
     def generate
-      "#{@base_name}-#{Time.now.strftime("%Y%m%d%H%M%S")}"
+      ts = Time.now.strftime("%Y%m%d%H%M%S") unless @options[:timestamp] == false # nil defaults to true
+      [@base_name, ts].compact.join('-')
     end
   end
 end

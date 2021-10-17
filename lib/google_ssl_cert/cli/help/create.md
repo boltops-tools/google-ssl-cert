@@ -13,7 +13,7 @@ Check that cert was created on google cloud:
 
 You can also specify the cert name:
 
-    $ google-ssl-cert create google-ssl-cert-1
+    $ google-ssl-cert create --cert-name google-ssl-cert-1 --no-timestamp
     Google SSL Cert Created: google-ssl-cert-1
 
 Check that cert was created on google cloud:
@@ -24,8 +24,8 @@ Check that cert was created on google cloud:
 
 ## More Examples
 
-    google-ssl-cert create cert-1
-    google-ssl-cert create cert-2 --private-key /path/to/key/server.key
-    google-ssl-cert create cert-3 --certificate /path/to/certificate/server.crt
-    google-ssl-cert create cert-4 --no-save-secret
-    google-ssl-cert create cert-5 --secret-name secret-name
+    google-ssl-cert create
+    google-ssl-cert create --private-key /path/to/key/server.key
+    google-ssl-cert create --certificate /path/to/certificate/server.crt
+    google-ssl-cert create --no-save-secret
+    google-ssl-cert create --secret-name secret-name
