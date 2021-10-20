@@ -34,8 +34,13 @@ class GoogleSslCert::CLI
     def save_secret
       secret_name  = @options[:secret_name]
       secret_value = @cert_name # @cert_name the value because it will be referenced. the @cert_name or 'key' will be the same
-      GoogleSslCert::Secret.new(@options).save(secret_name, secret_value)
+      secret.save(secret_name, secret_value)
     end
+
+    def secret
+      GoogleSslCert::Secret.new(@options)
+    end
+    memoize :secret
 
   private
     def validate!
@@ -53,6 +58,10 @@ class GoogleSslCert::CLI
         logger.error errors.join("\n")
         exit 1
       end
+
+      # Call here so validation happens at the beginning with the rest of validation
+      # want command to exit early and not even create a google ssl cert
+      secret.validate!
     end
   end
 end
