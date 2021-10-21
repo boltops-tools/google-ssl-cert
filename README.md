@@ -51,48 +51,46 @@ Make sure you have the cert files in your current folder:
 When no cert name is provided, one will be generated for you:
 
     $ google-ssl-cert create --secret-name cert_demo
-    Global cert created: google-ssl-cert-20211014164738
-    Secret saved: name: cert_demo value: google-ssl-cert-20211014164738
+    Global cert created: google-ssl-cert-global-20211021155725
+    Secret saved: name: cert_demo value: google-ssl-cert-global-20211021155725
 
 Check that cert and secret was created on google cloud:
 
-    $ gcloud compute ssl-certificates list
-    NAME                            TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
-    google-ssl-cert-20211014164738  SELF_MANAGED  2021-10-14T09:47:40.394-07:00  2022-10-12T17:22:01.000-07:00
-    $ gcloud compute ssl-certificates describe google-ssl-cert-20211014164738 | grep selfLink
-    selfLink: https://www.googleapis.com/compute/v1/projects/tung-275700/global/sslCertificates/google-ssl-cert-20211014164738
+    % gcloud compute ssl-certificates list
+    NAME                                   TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
+    google-ssl-cert-global-20211021155725  SELF_MANAGED  2021-10-21T08:57:26.005-07:00  2022-01-12T15:59:59.000-08:00
+    ~/environment/cert-files git:master aws:tung:us-west-2 gke:default
+    %
     $ gcloud secrets versions access latest --secret cert_demo
-    google-ssl-cert-20211014164738
+    google-ssl-cert-global-20211021155725
 
 ## Usage: Region Cert
 
 If you need to create a region cert instead, IE: for internal load balancers, specify the `--no-global` flag. Example:
 
     $ google-ssl-cert create --secret-name cert_demo --no-global
-    Region cert created: google-ssl-cert-20211014165827 in region: us-central1
-    Secret saved: name: cert_demo value: google-ssl-cert-20211014165827
+    Region cert created: google-ssl-cert-us-central1-20211021155852 in region: us-central1
+    Secret saved: name: cert_demo value: google-ssl-cert-us-central1-20211021155852
 
 Check that cert and secret was created on google cloud:
 
     $ gcloud compute ssl-certificates list
-    NAME                            TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
-    google-ssl-cert-20211014165827  SELF_MANAGED  2021-10-14T09:58:28.790-07:00  2022-10-12T17:22:01.000-07:00
-    $ gcloud compute ssl-certificates describe google-ssl-cert-20211014165827 --region $GOOGLE_REGION | grep selfLink
-    selfLink: https://www.googleapis.com/compute/v1/projects/tung-275700/regions/us-central1/sslCertificates/google-ssl-cert-20211014165827
-    $
+    NAME                                        TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
+    google-ssl-cert-us-central1-20211021155852  SELF_MANAGED  2021-10-21T08:58:53.514-07:00  2022-01-12T15:59:59.000-08:00
 
 ## Usage: Specifying the Cert Name
 
 You can also specify the cert name:
 
-    $ google-ssl-cert create google-ssl-cert-1
-    Global cert created: google-ssl-cert-1
+    $ google-ssl-cert create --cert-name google-ssl-cert-v1 --no-timestamp --secret-name cert_demo
+    Global cert created: google-ssl-cert-v1
+    Secret saved: name: cert_demo value: google-ssl-cert-v1
 
 Check that cert was created on google cloud:
 
     $ gcloud compute ssl-certificates list
-    NAME                            TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
-    google-ssl-cert-1               SELF_MANAGED  2021-10-13T13:17:04.192-07:00  2022-10-12T17:22:01.000-07:00
+    NAME                TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
+    google-ssl-cert-v1  SELF_MANAGED  2021-10-21T09:00:43.975-07:00  2022-01-12T15:59:59.000-08:00
 
 ## Required Env Vars
 
