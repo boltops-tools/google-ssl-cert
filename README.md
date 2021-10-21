@@ -8,7 +8,7 @@ A Google SSL Cert rotation automation tool.
 
 You should run this tool in the folder with your cert files. The cert files can be inferred conventionally or explicitly specified. Tool can be used in conjuction with [Kubes](https://kubes.guru/) and the [google_secret](https://kubes.guru/docs/helpers/google/secrets/) helper. It can be used to automate the SSL cert rotation process.
 
-This is done by generated a new SSL cert and storing that name to Google secrets.  All the user needs to do is be in the folder with the cert private key and signed cert. These files are typically named: `private.key` and `certificate.crt`.  The key is that the Google Secret name itself does not change, only it's value.
+This is done by generating a new SSL cert and storing that name to Google secrets.  All the user needs to do is be in the folder with the cert private key and signed cert. These files are typically named: `private.key` and `certificate.crt`.  The key is that the Google Secret name itself does not change, only it's value.
 
 ### Kubes Kuberbetes YAML
 
