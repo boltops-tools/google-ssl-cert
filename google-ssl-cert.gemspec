@@ -37,9 +37,6 @@ Gem::Specification.new do |spec|
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
     spec.metadata["homepage_uri"] = spec.homepage
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-    spec.metadata["source_code_uri"] = "https://github.com/boltopspro/google-ssl-cert"
-    spec.metadata["changelog_uri"] = "https://github.com/boltopspro/google-ssl-cert/blob/master/CHANGELOG.md"
   else
     raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
   end
