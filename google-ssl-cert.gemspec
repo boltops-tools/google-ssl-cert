@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Tung Nguyen"]
   spec.email         = ["tongueroo@gmail.com"]
   spec.summary       = "Google SSL Cert Tool"
-  spec.homepage      = "https://github.com/boltopspro/google-ssl-cert"
+  spec.homepage      = "https://github.com/boltops-tools/google-ssl-cert"
   spec.license       = "Apache-2.0"
 
   spec.files         = File.directory?('.git') ? `git ls-files`.split($/) : Dir.glob("**/*")
