@@ -2,7 +2,7 @@ class GoogleSslCert::CLI
   class Create < Base
     def initialize(options={})
       super
-      @cert_name = GoogleSslCert::Name.new(@options).generate
+      @cert_name = GoogleSslCert::Name.new(@options)
     end
 
     def run
@@ -14,7 +14,7 @@ class GoogleSslCert::CLI
     # Google API Docs:
     #    https://cloud.google.com/compute/docs/reference/rest/v1/sslCertificates/insert
     def create_cert
-      GoogleSslCert::Cert.new(@options.merge(cert_name: @cert_name)).create
+      GoogleSslCert::Cert.new(@options.merge(cert_name: @cert_name.generated_name)).create
     end
 
     # The secret name is expected to be static/predictable
@@ -32,8 +32,8 @@ class GoogleSslCert::CLI
     #   demo_ssl-cert-name  2021-10-13T23:10:06  automatic
     #
     def save_secret
-      secret_name  = @options[:secret_name]
-      secret_value = @cert_name # @cert_name the value because it will be referenced. the @cert_name or 'key' will be the same
+      secret_name  = @options[:secret_name] || @cert_name.base_name
+      secret_value = @cert_name.generated_name # @cert_name the value because it will be referenced. the @cert_name or 'key' will be the same
       secret.save(secret_name, secret_value)
     end
 
@@ -58,10 +58,6 @@ class GoogleSslCert::CLI
         logger.error errors.join("\n")
         exit 1
       end
-
-      # Call here so validation happens at the beginning with the rest of validation
-      # want command to exit early and not even create a google ssl cert
-      secret.validate!
     end
   end
 end
