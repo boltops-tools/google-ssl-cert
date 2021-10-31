@@ -15,7 +15,6 @@ module GoogleSslCert
     #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/addVersion
     #   https://cloud.google.com/secret-manager/docs/reference/rest/v1/SecretPayload
     def save(name, value)
-      validate!
       create_secret(name, value)
       url_path = "#{parent}/secrets/#{name}"
       secret_manager_service.add_secret_version(parent: url_path, payload: {data: value})
@@ -65,22 +64,6 @@ module GoogleSslCert
       logger.error "WARN: secret #{name.color(:yellow)} not found"
       logger.error e.message
       "NOT FOUND #{name}" # simple string so Kubernetes YAML is valid
-    end
-
-    def validate!
-      errors = []
-      secret_name = @options[:secret_name]
-      if @options[:save_secret] && !secret_name
-        errors << "ERROR: --secret-name must be provided or --no-save-secret option must be used"
-      end
-      # extra validation early to prevent google ssl cert from being created but the secret not being stored
-      if secret_name && secret_name !~ /^[a-zA-Z_\-0-9]+$/
-        errors << "ERROR: --secret-name invalid format. Expected format: [a-zA-Z_0-9]+" # Expected format taken from `gcloud secrets create`
-      end
-      unless errors.empty?
-        logger.error errors.join("\n")
-        exit 1
-      end
     end
   end
 end

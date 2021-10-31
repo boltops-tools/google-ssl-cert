@@ -24,7 +24,7 @@ kind: Ingress
 metadata:
   name: web
   annotations:
-    ingress.gcp.kubernetes.io/pre-shared-cert: '<%= google_secret("cert_demo", base64: false) %>'
+    ingress.gcp.kubernetes.io/pre-shared-cert: '<%= google_secret("cert-app1", base64: false) %>'
 spec:
   defaultBackend:
     service:
@@ -48,49 +48,39 @@ Make sure you have the cert files in your current folder:
     $ ls
     private.key  certificate.crt
 
-When no cert name is provided, one will be generated for you:
+Command synopsys.
 
-    $ google-ssl-cert create --secret-name cert_demo
-    Global cert created: google-ssl-cert-global-20211021155725
-    Secret saved: name: cert_demo value: google-ssl-cert-global-20211021155725
+    $ google-ssl-cert create CERT_NAME
+
+    $ google-ssl-cert create cert-app1
+    Global cert created: cert-app1-global-20211021155725
+    Secret saved: name: cert-app1 value: cert-app1-global-20211021155725
+
+The secret conventionally is the same as the cert name. You can override it with `--secret-name`.
 
 Check that cert and secret was created on google cloud:
 
     % gcloud compute ssl-certificates list
-    NAME                                   TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
-    google-ssl-cert-global-20211021155725  SELF_MANAGED  2021-10-21T08:57:26.005-07:00  2022-01-12T15:59:59.000-08:00
+    NAME                             TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
+    cert-app1-global-20211021155725  SELF_MANAGED  2021-10-21T08:57:26.005-07:00  2022-01-12T15:59:59.000-08:00
     ~/environment/cert-files git:master aws:tung:us-west-2 gke:default
     %
-    $ gcloud secrets versions access latest --secret cert_demo
-    google-ssl-cert-global-20211021155725
+    $ gcloud secrets versions access latest --secret cert-app1
+    cert-app1-global-20211021155725
 
 ## Usage: Region Cert
 
 If you need to create a region cert instead, IE: for internal load balancers, specify the `--no-global` flag. Example:
 
-    $ google-ssl-cert create --secret-name cert_demo --no-global
-    Region cert created: google-ssl-cert-us-central1-20211021155852 in region: us-central1
-    Secret saved: name: cert_demo value: google-ssl-cert-us-central1-20211021155852
+    $ google-ssl-cert create --cert-name cert-app1 --no-global
+    Region cert created: cert-app1-us-central1-20211021155852 in region: us-central1
+    Secret saved: name: cert-app1 value: cert-app1-us-central1-20211021155852
 
 Check that cert and secret was created on google cloud:
 
     $ gcloud compute ssl-certificates list
-    NAME                                        TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
-    google-ssl-cert-us-central1-20211021155852  SELF_MANAGED  2021-10-21T08:58:53.514-07:00  2022-01-12T15:59:59.000-08:00
-
-## Usage: Specifying the Cert Name
-
-You can also specify the cert name:
-
-    $ google-ssl-cert create --cert-name google-ssl-cert-v1 --no-timestamp --secret-name cert_demo
-    Global cert created: google-ssl-cert-v1
-    Secret saved: name: cert_demo value: google-ssl-cert-v1
-
-Check that cert was created on google cloud:
-
-    $ gcloud compute ssl-certificates list
-    NAME                TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
-    google-ssl-cert-v1  SELF_MANAGED  2021-10-21T09:00:43.975-07:00  2022-01-12T15:59:59.000-08:00
+    NAME                                  TYPE          CREATION_TIMESTAMP             EXPIRE_TIME                    MANAGED_STATUS
+    cert-app1-us-central1-20211021155852  SELF_MANAGED  2021-10-21T08:58:53.514-07:00  2022-01-12T15:59:59.000-08:00
 
 ## Required Env Vars
 
@@ -98,7 +88,8 @@ These env vars should be set:
 
 Name | Description
 --- | ---
-GOOGLE\_APPLICATION_CREDENTIALS | A service account as must be set up with `GOOGLE_APPLICATION_CREDENTIALS`. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
+GOOGLE\_APPLICATION_CREDENTIALS or
+GOOGLE_CREDENTIALS | A service account as must be set up. `GOOGLE_APPLICATION_CREDENTIALS` is set to the path of the file. `GOOGLE_CREDENTIALS` is set as the full json data structure. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
 GOOGLE_PROJECT | The env var `GOOGLE_PROJECT` and must be set.
 GOOGLE_REGION | The env var `GOOGLE_REGION` and must be set when creating a region-based google ssl cert. So when using the `--no-global` flag
 
@@ -138,7 +129,7 @@ You can also specify the path to the certificate and private key explicitly:
 
 To prune or delete old google ssl certs after rotating:
 
-    google-ssl-cert prune
+    google-ssl-cert prune CERT_NAME
 
 ## Installation
 

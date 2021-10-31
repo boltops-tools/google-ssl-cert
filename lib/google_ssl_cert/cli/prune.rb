@@ -8,7 +8,15 @@ class GoogleSslCert::CLI
       certs = ssl_certs[0..right] || [] # delete all except the last cert
 
       if certs.empty?
-        logger.info "No timestamped certs to prune with cert name: #{cert_base_name}"
+        unless ssl_certs.empty?
+          logger.info "Found certs:"
+          ssl_certs.each do |cert|
+            logger.info "  #{cert.name}"
+          end
+        end
+        cert_word = keep > 1 ? "certs" : "cert"
+        logger.info "Keeping #{keep} #{cert_word}."
+        logger.info "No certs to prune with base cert name: #{cert_base_name}"
         return
       end
 
