@@ -48,9 +48,11 @@ Make sure you have the cert files in your current folder:
     $ ls
     private.key  certificate.crt
 
-Command synopsys.
+Command synopsys:
 
-    $ google-ssl-cert create CERT_NAME
+    google-ssl-cert create CERT_NAME
+
+Example:
 
     $ google-ssl-cert create cert-app1
     Global cert created: cert-app1-global-20211021155725
