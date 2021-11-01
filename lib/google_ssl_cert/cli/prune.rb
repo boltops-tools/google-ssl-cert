@@ -14,7 +14,7 @@ class GoogleSslCert::CLI
             logger.info "  #{cert.name}"
           end
         end
-        cert_word = keep > 1 ? "certs" : "cert"
+        cert_word = keep == 1 ? "cert" : "certs"
         logger.info "Keeping #{keep} #{cert_word}."
         logger.info "No certs to prune with base cert name: #{cert_base_name}"
         return
