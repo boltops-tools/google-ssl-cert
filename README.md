@@ -90,8 +90,7 @@ These env vars should be set:
 
 Name | Description
 --- | ---
-GOOGLE\_APPLICATION_CREDENTIALS or
-GOOGLE_CREDENTIALS | A service account as must be set up. `GOOGLE_APPLICATION_CREDENTIALS` is set to the path of the file. `GOOGLE_CREDENTIALS` is set as the full json data structure. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
+GOOGLE\_APPLICATION_CREDENTIALS | A service account as must be set up. `GOOGLE_APPLICATION_CREDENTIALS` is set to the path of the file. IE: `export GOOGLE_APPLICATION_CREDENTIALS=~/.gcp/credentials.json`
 GOOGLE_PROJECT | The env var `GOOGLE_PROJECT` and must be set.
 GOOGLE_REGION | The env var `GOOGLE_REGION` and must be set when creating a region-based google ssl cert. So when using the `--no-global` flag
 
