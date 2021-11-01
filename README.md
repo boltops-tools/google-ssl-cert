@@ -74,7 +74,7 @@ Check that cert and secret was created on google cloud:
 
 If you need to create a region cert instead, IE: for internal load balancers, specify the `--no-global` flag. Example:
 
-    $ google-ssl-cert create --cert-name cert-app1 --no-global
+    $ google-ssl-cert create cert-app1 --no-global
     Region cert created: cert-app1-us-central1-20211021155852 in region: us-central1
     Secret saved: name: cert-app1 value: cert-app1-us-central1-20211021155852
 
@@ -125,7 +125,7 @@ The tool is able to detect it and automatically use those files to create the ce
 
 You can also specify the path to the certificate and private key explicitly:
 
-    google-ssl-cert create --private-key server.key --certificate server.crt
+    google-ssl-cert create cert-app1 --private-key server.key --certificate server.crt
 
 ## Prune
 
