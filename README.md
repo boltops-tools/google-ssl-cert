@@ -52,6 +52,8 @@ Command synopsys:
 
     google-ssl-cert create CERT_NAME
 
+Note: Google ssl cert names can only contain letters, numbers, and dashes. Underscores are not allowed.
+
 Example:
 
     $ google-ssl-cert create cert-app1
